@@ -10,6 +10,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isProfile;
 
   const CommonAppBar({
+    super.key,
     required this.title,
     required this.onLeftPressed,
     this.isProfile = false,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:soccer_mobile_app/config/routes/app_navigation.dart';
+import 'package:soccer_mobile_app/config/routes/app_routes.dart';
 import 'package:soccer_mobile_app/config/theme/app_colors.dart';
 import 'package:soccer_mobile_app/core/components/app_bar.dart';
 import 'package:soccer_mobile_app/core/components/extensions.dart';
@@ -82,116 +84,121 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: 5,
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 16.0, top: 24.0, right: 16),
-                  child: Container(
-                    width: 343,
-                    height: 355,
-                    decoration: BoxDecoration(
-                      color: AppColors.secondaryColor450, // Same as android:fillColor
-                      borderRadius: BorderRadius.circular(24), // Approximating corner rounding
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          clipBehavior: Clip.antiAlias,
-                          decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(24),
-                            topLeft: Radius.circular(24),
-                          ) // Adjust the radius as needed
-                              ),
-                          child: Image.asset(
-                            // imgurl,
-                            "${AppConstant.assetImages}footballer.png",
-                            fit: BoxFit.fitWidth,
-                            width: double.maxFinite,
-                            height: 210,
-                            // Ensures the image covers the entire container
+                return InkWell(
+                  onTap: () {
+                    AppNavigation.navigateTo(AppRoutes.routeHomeDetailsScreen, arguments: {'index': index});
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0, top: 24.0, right: 16),
+                    child: Container(
+                      width: 343,
+                      height: 355,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryColor450, // Same as android:fillColor
+                        borderRadius: BorderRadius.circular(24), // Approximating corner rounding
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            clipBehavior: Clip.antiAlias,
+                            decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(24),
+                              topLeft: Radius.circular(24),
+                            ) // Adjust the radius as needed
+                                ),
+                            child: Image.asset(
+                              // imgurl,
+                              "${AppConstant.assetImages}footballer.png",
+                              fit: BoxFit.fitWidth,
+                              width: double.maxFinite,
+                              height: 210,
+                              // Ensures the image covers the entire container
+                            ),
                           ),
-                        ),
-                        8.height,
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  "Soccer training session with an experienced coach",
-                                  maxLines: 2,
-                                  softWrap: true,
-                                  style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600, color: AppColors.secondaryColor25),
+                          8.height,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    "Soccer training session with an experienced coach",
+                                    maxLines: 2,
+                                    softWrap: true,
+                                    style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600, color: AppColors.secondaryColor25),
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "\$8$index",
-                                  textAlign: TextAlign.end,
-                                  style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600, color: AppColors.primaryColor600),
+                                Expanded(
+                                  child: Text(
+                                    "\$8$index",
+                                    textAlign: TextAlign.end,
+                                    style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600, color: AppColors.primaryColor600),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        18.height,
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.location_on_rounded,
-                                color: AppColors.primaryColor600,
-                                size: 14,
-                              ),
-                              10.width,
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  "Soccer training session with an experienced coach",
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.bodySmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 13),
+                          18.height,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.location_on_rounded,
+                                  color: AppColors.primaryColor600,
+                                  size: 14,
                                 ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "11:00am",
-                                  textAlign: TextAlign.end,
-                                  style: textTheme.titleSmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 12),
+                                10.width,
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    "Soccer training session with an experienced coach",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: textTheme.bodySmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 13),
+                                  ),
                                 ),
-                              ),
-                            ],
+                                Expanded(
+                                  child: Text(
+                                    "11:00am",
+                                    textAlign: TextAlign.end,
+                                    style: textTheme.titleSmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        18.height,
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const CircleAvatar(
-                                radius: 12,
-                                backgroundImage: AssetImage('${AppConstant.assetImages}footballer.png'),
-                              ),
-                              10.width,
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  "Chris brown",
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.bodySmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 13),
+                          18.height,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const CircleAvatar(
+                                  radius: 12,
+                                  backgroundImage: AssetImage('${AppConstant.assetImages}footballer.png'),
                                 ),
-                              ),
-                            ],
+                                10.width,
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    "Chris brown",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: textTheme.bodySmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 13),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
