@@ -11,7 +11,7 @@ class AppNavigation {
     return navigatorKey.currentState!.pop();
   }
 
-  static bool canGoback() {
+  static bool canGoBack() {
     return navigatorKey.currentState!.canPop();
   }
 

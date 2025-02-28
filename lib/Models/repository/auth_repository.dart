@@ -1,4 +1,3 @@
-import 'package:soccer_mobile_app/Models/data/auth/login_dm.dart';
 import 'package:soccer_mobile_app/Services/api_services.dart';
 import 'package:soccer_mobile_app/Services/end_points.dart';
 import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
@@ -13,12 +12,7 @@ class AuthRepository {
     _postBody = body;
     _header = {"Content-Type": "application/json", "Accept": "application/json"};
     var response = await ApiService(endPoint: '/$result/${EndPoints.login}').post(header: _header!, postBody: _postBody);
-    if (response['success'] == true) {
-      LoginResponse result = LoginResponse.fromJson(response);
-      return result;
-    } else {
-      return response;
-    }
+    return response;
   }
 
   resetPassword({required Map<String, dynamic> body}) async {
@@ -41,5 +35,34 @@ class AuthRepository {
     _header = {"Content-Type": "application/json", "Accept": "application/json"};
     var response = await ApiService(endPoint: '/$result/${EndPoints.verifyOtp}').post(header: _header!, postBody: _postBody);
     return response;
+  }
+
+  verifyOtpNewUser({required body}) async {
+    var result = box.read(Storage.userRole);
+    _postBody = body;
+    _header = {"Content-Type": "application/json", "Accept": "application/json"};
+    var response = await ApiService(endPoint: '/$result/${EndPoints.verifyOtpNewUser}').post(header: _header!, postBody: _postBody);
+    return response;
+  }
+
+  changePassword({required Map<String, String> body}) {
+    var result = box.read(Storage.userRole);
+    _postBody = body;
+    _header = {"Content-Type": "application/json", "Accept": "application/json"};
+    return ApiService(endPoint: '/$result/${EndPoints.changePassword}').post(header: _header!, postBody: _postBody);
+  }
+
+  createPassword({required Map<String, String> body}) {
+    var result = box.read(Storage.userRole);
+    _postBody = body;
+    _header = {"Content-Type": "application/json", "Accept": "application/json"};
+    return ApiService(endPoint: '/$result/${EndPoints.createPassword}').post(header: _header!, postBody: _postBody);
+  }
+
+  resendOtp({required Map<String, String> body}) {
+    var result = box.read(Storage.userRole);
+    _postBody = body;
+    _header = {"Content-Type": "application/json", "Accept": "application/json"};
+    return ApiService(endPoint: '/$result/${EndPoints.resendOtp}').post(header: _header!, postBody: _postBody);
   }
 }

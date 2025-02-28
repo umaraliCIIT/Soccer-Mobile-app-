@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -19,7 +20,7 @@ class ApiService {
     try {
       var response = await http.post(Uri.parse(AppConstant.appBaseURL + endPoint), headers: header, body: postBody != null ? jsonEncode(postBody) : null).timeout(Duration(seconds: 15));
       // CONVERTING RESPONSE TO MAP
-      print('response:${response.statusCode}  ${response.body} ');
+      print('POST response:${response.statusCode}  ${response.body} ');
 
       Map<String, dynamic> result = jsonDecode(response.body);
       if (response.statusCode == 200) {
@@ -44,30 +45,34 @@ class ApiService {
   ///~~~~~~~~~~~~~~~~~~~~~POST FORM DATA~~~~~~~~~~~~~~~~~~~~///
   Future postFormData(
       {required Map<String, String> fields, // Text fields
-      required Map<String, File> files // Files to upload
+      required Map<String, File>? files // Files to upload
       }) async {
     try {
+      print('HITTING POST API AT ==> ${AppConstant.appBaseURL + endPoint} WITH BODY \n  $fields ... $files  ');
+
       // Create a multipart request
       var request = http.MultipartRequest('POST', Uri.parse(AppConstant.appBaseURL + endPoint));
 
       // Add text fields to the request
       request.fields.addAll(fields);
 
-      // Add files to the request
-      for (var entry in files.entries) {
-        var fileStream = http.ByteStream(entry.value.openRead());
-        var fileLength = await entry.value.length();
-        var multipartFile = http.MultipartFile(
-          entry.key, // Field name for the file
-          fileStream,
-          fileLength,
-          filename: entry.value.path.split('/').last, // Extract file name from path
-        );
-        request.files.add(multipartFile);
+      if (files != null) {
+        // Add files to the request
+        for (var entry in files.entries) {
+          var fileStream = http.ByteStream(entry.value.openRead());
+          var fileLength = await entry.value.length();
+          var multipartFile = http.MultipartFile(
+            entry.key, // Field name for the file
+            fileStream,
+            fileLength,
+            filename: entry.value.path.split('/').last, // Extract file name from path
+          );
+          request.files.add(multipartFile);
+        }
       }
-
       // Send the request
       var response = await request.send().timeout(const Duration(seconds: 15));
+      print('POST FORM DATA response:${response.statusCode}  ');
 
       // Handle the response
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -88,6 +93,7 @@ class ApiService {
       HelperFunctions.showErrorToast('Server timeout, check your internet connection.');
       return null; // Default fallback if no onTimeout is provided
     } catch (e) {
+      log('error state $e');
       return e.toString();
     }
   }
@@ -97,12 +103,9 @@ class ApiService {
     print('HITTING GET API AT ==> ${AppConstant.appBaseURL + endPoint}');
     // Making Request
     try {
-      var response = await http
-          .get(
-            Uri.parse(AppConstant.appBaseURL + endPoint),
-            headers: header,
-          )
-          .timeout(Duration(seconds: 15));
+      var response = await http.get(Uri.parse(AppConstant.appBaseURL + endPoint), headers: header).timeout(Duration(seconds: 15));
+
+      print('GET response:${response.statusCode}  ${response.body} ');
 
       // CONVERTING RESPONSE TO MAP
       var result = jsonDecode(response.body);
@@ -168,7 +171,7 @@ class ApiService {
             headers: header,
           )
           .timeout(const Duration(seconds: 15));
-      print('response: ${response} ${response.body} ${response.statusCode}');
+      print('DELETE response: ${response} ${response.body} ${response.statusCode}');
 
       Map<String, dynamic> result = jsonDecode(response.body);
       if (response.statusCode == 200) {

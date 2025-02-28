@@ -5,7 +5,7 @@ import 'package:soccer_mobile_app/config/theme/app_colors.dart';
 
 class CustomLoading {
   static void hideLoadingIndicator() async {
-    AppNavigation.goBack();
+    Navigator.of(AppNavigation.navigatorKey.currentContext!).pop();
   }
 
   static void showLoadingIndicator({bool usePostFrameCallback = true}) {

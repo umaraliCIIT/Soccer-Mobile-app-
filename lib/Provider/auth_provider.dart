@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:soccer_mobile_app/Models/data/auth/login_dm.dart';
+import 'package:soccer_mobile_app/Models/data/auth/register_dm.dart';
 import 'package:soccer_mobile_app/Models/repository/auth_repository.dart';
 import 'package:soccer_mobile_app/Utils/Constants/custom_loading.dart';
 import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
@@ -21,33 +22,40 @@ class AuthProvider extends ChangeNotifier {
   TextEditingController passController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController otpController = TextEditingController();
-  LoginResponse _response = LoginResponse();
+  TextEditingController newPassController = TextEditingController();
+
   bool _isObscureText = true;
+  bool _isConfirmObscureText = true;
   bool _isCamera = false;
+  bool _isResend = false;
   String _imagePath = '';
   File? _imageFile;
-  int timerDuration = 300;
-  Timer? timer;
-  get loginResponse => _response;
 
   get isCamera => _isCamera;
+  get isResend => _isResend;
 
   get isObscure => _isObscureText;
+  get isConfirmObscure => _isConfirmObscureText;
 
   get imagePath => _imagePath;
-
-  setResponse(value) {
-    _response = value;
-    notifyListeners();
-  }
 
   setObscure() {
     _isObscureText = !_isObscureText;
     notifyListeners();
   }
 
+  setConfirmObscure() {
+    _isConfirmObscureText = !_isConfirmObscureText;
+    notifyListeners();
+  }
+
   setCamera(value) {
     _isCamera = value;
+    notifyListeners();
+  }
+
+  setResend(value) {
+    _isResend = value;
     notifyListeners();
   }
 
@@ -62,22 +70,29 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
     CustomLoading.showLoadingIndicator();
-    try {
-      Map<String, dynamic> map = {
-        'email': emailController.text,
-        'password': passController.text,
-      };
-      _response = await AuthRepository().login(body: map);
+    Map<String, dynamic> map = {
+      'email': emailController.text,
+      'password': passController.text,
+    };
+    var res = await AuthRepository().login(body: map);
+    CustomLoading.hideLoadingIndicator();
 
-      setResponse(_response);
-      CustomLoading.hideLoadingIndicator();
-      HelperFunctions.showSuccessToast('Login successful!');
-
-      notifyListeners();
-    } catch (e) {
-      CustomLoading.hideLoadingIndicator();
-      HelperFunctions.showErrorToast(e.toString());
+    if (res['success']) {
+      emailController.clear();
+      passController.clear();
+      if (res['message'] == "Account verification pending. Please enter the OTP to continue") {
+        HelperFunctions.showSuccessToast(res['message']);
+        AppNavigation.pushReplacementTo(AppRoutes.routeOtpVerifyScreen, arguments: {'new_user': true});
+      } else {
+        LoginResponse response = LoginResponse.fromJson(res);
+        box.write(Storage.userData, response.toJson());
+        HelperFunctions.showSuccessToast("Login successfully!");
+        AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
+      }
+    } else {
+      HelperFunctions.showErrorToast(res['message']);
     }
+    notifyListeners();
   }
 
   Future resetPassword() async {
@@ -90,11 +105,14 @@ class AuthProvider extends ChangeNotifier {
       Map<String, dynamic> map = {
         'email': emailController.text,
       };
+      box.write(Storage.email, emailController.text);
+
       var res = await AuthRepository().resetPassword(body: map);
       CustomLoading.hideLoadingIndicator();
-      if (res['message'] == 'OTP sent successfully') {
-        HelperFunctions.showSuccessToast('OTP send successfully!');
-        AppNavigation.pushReplacementTo(AppRoutes.routeOtpVerifyScreen);
+      if (res['success']) {
+        emailController.clear();
+        HelperFunctions.showSuccessToast('${res['message']}');
+        AppNavigation.pushReplacementTo(AppRoutes.routeOtpVerifyScreen, arguments: {'new_user': false});
       } else {
         HelperFunctions.showErrorToast(res['message']);
       }
@@ -110,29 +128,36 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
     CustomLoading.showLoadingIndicator();
-    try {
-      Map<String, String> map = {
-        'firstName': fNameController.text,
-        'lastName': lNameController.text,
-        'email': emailController.text,
-        'password': passController.text,
-        'phone': phoneController.text,
-      };
+    Map<String, String> map = {
+      'firstName': fNameController.text,
+      'lastName': lNameController.text,
+      'email': emailController.text,
+      'password': passController.text,
+      'phone': phoneController.text,
+    };
+    box.write(Storage.email, emailController.text);
 
-      Map<String, File> files = {
-        'file': _imageFile ?? File(''), // Add the profile image file
+    Map<String, File>? files;
+    if (_imageFile != null) {
+      files = {
+        'file': _imageFile!, // Add the profile image file
       };
-      var res = await AuthRepository().signup(fields: map, files: files);
-      box.write(Storage.email, emailController.text);
-      CustomLoading.hideLoadingIndicator();
-      HelperFunctions.showSuccessToast('${res['message']}');
-      AppNavigation.pushReplacementTo(AppRoutes.routeOtpVerifyScreen);
-      notifyListeners();
-    } catch (e) {
-      CustomLoading.hideLoadingIndicator();
-      HelperFunctions.showErrorToast(e.toString());
-      notifyListeners();
     }
+    var res = await AuthRepository().signup(fields: map, files: files);
+    CustomLoading.hideLoadingIndicator();
+    if (res['success'] != null && res['success'] == true) {
+      fNameController.clear();
+      lNameController.clear();
+      emailController.clear();
+      passController.clear();
+      phoneController.clear();
+
+      HelperFunctions.showSuccessToast('${res['message']}');
+      AppNavigation.pushReplacementTo(AppRoutes.routeOtpVerifyScreen, arguments: {'new_user': true});
+    } else {
+      HelperFunctions.showErrorToast('${res['message']}');
+    }
+    notifyListeners();
   }
 
   Future verifyOtp() async {
@@ -140,7 +165,6 @@ class AuthProvider extends ChangeNotifier {
       HelperFunctions.showErrorToast('Please fill the required fields!');
       return;
     }
-
     CustomLoading.showLoadingIndicator();
     try {
       Map<String, String> map = {
@@ -149,11 +173,125 @@ class AuthProvider extends ChangeNotifier {
       };
       var res = await AuthRepository().verifyOtp(body: map);
       CustomLoading.hideLoadingIndicator();
-      HelperFunctions.showSuccessToast('${res['message']}');
-      AppNavigation.navigateTo(AppRoutes.routeOverviewScreen);
+
+      if (res['success'] != null && res['success'] == true) {
+        otpController.clear();
+        HelperFunctions.showSuccessToast('${res['message']}');
+        AppNavigation.pushAndKillAll(AppRoutes.routeCreateNewPasswordScreen);
+      } else {
+        HelperFunctions.showErrorToast('${res['message']}');
+      }
       notifyListeners();
     } catch (e) {
+      HelperFunctions.showErrorToast(e.toString());
+    }
+  }
+
+  Future resendOtp() async {
+    CustomLoading.showLoadingIndicator();
+    try {
+      Map<String, String> map = {
+        'email': box.read(Storage.email),
+      };
+      var res = await AuthRepository().resendOtp(body: map);
       CustomLoading.hideLoadingIndicator();
+      if (res['success'] != null && res['success'] == true) {
+        setResend(true);
+
+        HelperFunctions.showSuccessToast('${res['message']}');
+      } else {
+        setResend(false);
+
+        HelperFunctions.showErrorToast('${res['message']}');
+      }
+      notifyListeners();
+    } catch (e) {
+      HelperFunctions.showErrorToast(e.toString());
+    }
+  }
+
+  Future verifyNewUser() async {
+    if (otpController.text.isEmpty) {
+      HelperFunctions.showErrorToast('Please fill the required fields!');
+      return;
+    }
+    CustomLoading.showLoadingIndicator();
+    try {
+      Map<String, String> map = {
+        'email': box.read(Storage.email),
+        'otp': otpController.text,
+      };
+      var res = await AuthRepository().verifyOtpNewUser(body: map);
+
+      CustomLoading.hideLoadingIndicator();
+
+      if (res['success'] != null && res['success'] == true) {
+        otpController.clear();
+        HelperFunctions.showSuccessToast('${res['message']}');
+        SignUpResponse response = SignUpResponse.fromJson(res);
+        box.write(Storage.userData, response.toJson());
+        AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
+      } else {
+        HelperFunctions.showErrorToast('${res['message']}');
+      }
+      notifyListeners();
+    } catch (e) {
+      HelperFunctions.showErrorToast(e.toString());
+    }
+  }
+
+  Future changePassword() async {
+    if (passController.text.isEmpty) {
+      HelperFunctions.showErrorToast('Please fill the required fields!');
+      return;
+    }
+    CustomLoading.showLoadingIndicator();
+    try {
+      Map<String, String> map = {
+        'email': box.read(Storage.email),
+        'password': passController.text,
+      };
+      var res = await AuthRepository().changePassword(body: map);
+      CustomLoading.hideLoadingIndicator();
+      if (res['success'] != null && res['success'] == true) {
+        passController.clear();
+        HelperFunctions.showSuccessToast('${res['message']}');
+        AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
+      } else {
+        HelperFunctions.showErrorToast('${res['message']}');
+      }
+
+      notifyListeners();
+    } catch (e) {
+      HelperFunctions.showErrorToast(e.toString());
+      notifyListeners();
+    }
+  }
+
+  Future createPassword() async {
+    if (passController.text.isEmpty || newPassController.text.isEmpty) {
+      HelperFunctions.showErrorToast('Please fill the required fields!');
+      return;
+    }
+    CustomLoading.showLoadingIndicator();
+    try {
+      Map<String, String> map = {
+        "email": box.read(Storage.email),
+        "password": passController.text,
+        "confirmPassword": newPassController.text,
+      };
+      var res = await AuthRepository().createPassword(body: map);
+      CustomLoading.hideLoadingIndicator();
+      if (res['success'] != null && res['success'] == true) {
+        passController.clear();
+        newPassController.clear();
+        HelperFunctions.showSuccessToast('${res['message']}');
+        AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
+      } else {
+        HelperFunctions.showErrorToast('${res['message']}');
+      }
+      notifyListeners();
+    } catch (e) {
       HelperFunctions.showErrorToast(e.toString());
       notifyListeners();
     }
@@ -164,9 +302,6 @@ class AuthProvider extends ChangeNotifier {
   pickImage() async {
     XFile? imageFile;
     final ImagePicker picker = ImagePicker();
-
-    print('Profile selection: $_isCamera');
-
     if (!_isCamera) {
       imageFile = await picker.pickImage(source: ImageSource.gallery);
     } else {
@@ -176,30 +311,8 @@ class AuthProvider extends ChangeNotifier {
     /// If user selected an image, proceed to cropping
     if (imageFile != null) {
       File? croppedFile = await _cropImage(File(imageFile.path));
-      print('imageFile: %%%%------> ${croppedFile}');
       _imageFile = croppedFile;
       setImagePath(croppedFile?.path ?? '');
-      /* if (croppedFile != null) {
-        /// Show loading indicator
-        viewModel!.isImageUploading = true;
-        _update();
-
-        /// Upload cropped image
-        var response = await Repository().postImage(file: croppedFile);
-
-        print('Response from image upload: $response');
-
-        try {
-          String message = response['message'];
-          if (message.contains('Success')) {
-            /// Set the new image URL
-            viewModel!.profileImageUrl = response['data']['cdn_link'];
-            viewModel!.isDataUpdated = true;
-          }
-        } catch (e) {
-          blocSingleton.showMessage(context, 'Image upload error: $e');
-        }
-      }*/
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,8 @@ import 'package:soccer_mobile_app/features/auth/helpers/common_widget.dart';
 import 'package:soccer_mobile_app/main.dart';
 
 class OtpVerifyScreen extends StatefulWidget {
-  const OtpVerifyScreen({super.key});
+  dynamic arguments;
+  OtpVerifyScreen({super.key, this.arguments});
 
   @override
   State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
@@ -22,6 +24,9 @@ class OtpVerifyScreen extends StatefulWidget {
 
 class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
   late AuthProvider provider;
+  Timer? timer;
+  int timerDuration = 300;
+
   @override
   void initState() {
     super.initState();
@@ -30,27 +35,27 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 
   initData() async {
     provider = Provider.of(AppNavigation.navigatorKey.currentContext!, listen: false);
-    provider.timerDuration = box.read('duration ${box.read(Storage.email)}') ?? 300;
+    timerDuration = box.read('duration ${box.read(Storage.email)}') ?? 300;
     if (!HelperFunctions.calculateTimeDifference(box.read('currentTime ${box.read(Storage.email)}'), 0, box.read(Storage.email))) {
       box.write('currentTime ${box.read(Storage.email)}', DateTime.now().toString());
       startTimer();
     } else {
-      provider.timerDuration = box.read('duration ${box.read(Storage.email)}');
+      timerDuration = box.read('duration ${box.read(Storage.email)}');
       startTimer();
     }
   }
 
   @override
   void dispose() {
-    provider.timer?.cancel();
+    timer?.cancel();
     super.dispose();
   }
 
   void startTimer() {
-    provider.timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        if (provider.timerDuration > 0) {
-          provider.timerDuration--;
+        if (timerDuration > 0) {
+          timerDuration--;
         } else {
           timer.cancel();
         }
@@ -60,7 +65,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 
   void resetTimer() {
     setState(() {
-      provider.timerDuration = 300; // Reset the timer to 5 minutes after
+      timerDuration = 300; // Reset the timer to 5 minutes after
       startTimer();
       // Here we have to call post otp api again
     });
@@ -72,7 +77,6 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  bool isOtp = false;
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -132,22 +136,31 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                     textStyle: const TextStyle(fontSize: 20, color: AppColors.primaryColor600),
                     colorBuilder: FixedColorBuilder(Colors.white.withOpacity(0.3)),
                   ),
-                  currentCode: '',
+                  currentCode: provider.otpController.text,
                   codeLength: 4,
                   onCodeSubmitted: (code) {
-                    print('code submitted $code');
+                    log('code submitted $code');
                   },
                   onCodeChanged: (code) {
-                    print('code lenggth--- $code');
                     if (code!.length == 4) {
                       FocusScope.of(context).requestFocus(FocusNode());
                       provider.emailController.text = code;
                     }
                   },
                 ),
-                16.height,
+                34.height,
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    if (timerDuration <= 0) {
+                      provider.resendOtp().then(
+                        (value) {
+                          if (provider.isResend) {
+                            resetTimer();
+                          }
+                        },
+                      );
+                    }
+                  },
                   child: RichText(
                     overflow: TextOverflow.visible,
                     textAlign: TextAlign.center,
@@ -156,7 +169,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: "Didnt get OTP?",
+                          text: "Didn't get OTP?",
                           style: textTheme.bodySmall?.copyWith(
                             color: AppColors.secondaryColor200,
                           ),
@@ -164,7 +177,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                         TextSpan(
                           text: " Resend again",
                           style: textTheme.bodySmall?.copyWith(
-                            color: AppColors.secondaryColor300,
+                            color: timerDuration <= 0 ? AppColors.primaryColor600 : AppColors.secondaryColor200,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -180,13 +194,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: "Code Expires in:",
+                        text: "Code Expires in: ",
                         style: textTheme.bodySmall?.copyWith(
                           color: AppColors.secondaryColor500,
                         ),
                       ),
                       TextSpan(
-                        text: formatDuration(provider.timerDuration),
+                        text: formatDuration(timerDuration),
                         style: textTheme.bodySmall?.copyWith(
                           color: AppColors.primaryColor600,
                           fontSize: 20,
@@ -200,7 +214,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                 CustomElevatedButton(
                   title: 'Verify',
                   onPressed: () {
-                    otpProvider.verifyOtp();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    print('agrgs---> ${widget.arguments}');
+                    if (widget.arguments['new_user']) {
+                      otpProvider.verifyNewUser();
+                    } else {
+                      otpProvider.verifyOtp();
+                    }
                   },
                 ),
               ],

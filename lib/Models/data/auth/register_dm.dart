@@ -1,13 +1,13 @@
-class LoginResponse {
+class SignUpResponse {
   bool? success;
   String? message;
   Data? data;
   String? token;
   String? refresh;
 
-  LoginResponse({this.success, this.message, this.data, this.token, this.refresh});
+  SignUpResponse({this.success, this.message, this.data, this.token, this.refresh});
 
-  LoginResponse.fromJson(Map<String, dynamic> json) {
+  SignUpResponse.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;

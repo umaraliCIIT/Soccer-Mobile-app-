@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:soccer_mobile_app/Models/data/auth/login_dm.dart';
+import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
 import 'package:soccer_mobile_app/config/routes/app_navigation.dart';
 import 'package:soccer_mobile_app/config/routes/app_routes.dart';
 import 'package:soccer_mobile_app/config/theme/app_colors.dart';
 import 'package:soccer_mobile_app/core/constants/app_constant.dart';
+import 'package:soccer_mobile_app/main.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -41,7 +44,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         Future.delayed(const Duration(seconds: 1), () {
-          AppNavigation.pushReplacementTo(AppRoutes.walkThrough);
+          var response = box.read(Storage.userData);
+          print('response login-----> $response');
+          if (response != null) {
+            LoginResponse data = LoginResponse.fromJson(response);
+            if (data.data!.isVerified!) {
+              AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
+            } else {
+              AppNavigation.pushAndKillAll(AppRoutes.routeLoginScreen);
+            }
+          } else {
+            AppNavigation.pushAndKillAll(AppRoutes.walkThrough);
+          }
         });
       }
     });

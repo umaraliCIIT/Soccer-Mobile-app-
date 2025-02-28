@@ -4,7 +4,6 @@ import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
 import 'package:soccer_mobile_app/config/routes/app_navigation.dart';
 import 'package:soccer_mobile_app/config/routes/app_routes.dart';
 import 'package:soccer_mobile_app/config/theme/app_colors.dart';
-import 'package:soccer_mobile_app/core/components/extensions.dart';
 import 'package:soccer_mobile_app/core/constants/app_constant.dart';
 import 'package:soccer_mobile_app/main.dart';
 
@@ -15,8 +14,66 @@ class TypeSelection extends StatefulWidget {
   State<TypeSelection> createState() => _TypeSelectionState();
 }
 
-class _TypeSelectionState extends State<TypeSelection> {
+class _TypeSelectionState extends State<TypeSelection> with TickerProviderStateMixin {
   String? selectedRole;
+
+  // Animation controllers for each card
+  late AnimationController _playerCardController;
+  late AnimationController _coachCardController;
+  late AnimationController _adminCardController;
+
+  // Animation offsets for sliding in
+  late Animation<Offset> _playerCardOffset;
+  late Animation<Offset> _coachCardOffset;
+  late Animation<Offset> _adminCardOffset;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize animation controllers
+    _playerCardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _coachCardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _adminCardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    // Define easing curves for animations
+    _playerCardOffset = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0), // Start off-screen to the left
+      end: Offset.zero, // End at the original position
+    ).animate(CurvedAnimation(parent: _playerCardController, curve: Curves.easeOut));
+
+    _coachCardOffset = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _coachCardController, curve: Curves.easeOut));
+
+    _adminCardOffset = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _adminCardController, curve: Curves.easeOut));
+
+    // Trigger animations with delays
+    Future.delayed(const Duration(milliseconds: 300), () => _playerCardController.forward());
+    Future.delayed(const Duration(milliseconds: 600), () => _coachCardController.forward());
+    Future.delayed(const Duration(milliseconds: 900), () => _adminCardController.forward());
+  }
+
+  @override
+  void dispose() {
+    _playerCardController.dispose();
+    _coachCardController.dispose();
+    _adminCardController.dispose();
+    super.dispose();
+  }
 
   // Function to handle role selection
   void selectRole(String role) {
@@ -24,7 +81,6 @@ class _TypeSelectionState extends State<TypeSelection> {
       selectedRole = role;
     });
     box.write(Storage.userRole, selectedRole);
-
     AppNavigation.pushReplacementTo(AppRoutes.routeLoginScreen, arguments: {'name': selectedRole});
   }
 
@@ -35,45 +91,55 @@ class _TypeSelectionState extends State<TypeSelection> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
             child: Image.asset(
               "${AppConstant.assetImages}logo.png",
               fit: BoxFit.fitWidth,
               height: 35,
             ),
           ),
-          20.height,
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Player Card
-                RoleCard(
-                  title: "Player",
-                  imagePath: "${AppConstant.assetImages}player.png", // Replace with your image path
-                  isSelected: selectedRole == "user",
-                  onTap: () => selectRole("user"),
-                ),
-                const SizedBox(height: 20), // Space between cards
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Player Card
+                  SlideTransition(
+                    position: _playerCardOffset,
+                    child: RoleCard(
+                      title: "Player",
+                      imagePath: "${AppConstant.assetImages}player.png",
+                      isSelected: selectedRole == "user",
+                      onTap: () => selectRole("user"),
+                    ),
+                  ),
+                  const SizedBox(height: 20), // Space between cards
 
-                // Coach Card
-                RoleCard(
-                  title: "Coach",
-                  imagePath: "${AppConstant.assetImages}coach.png", // Replace with your image path
-                  isSelected: selectedRole == "coach",
-                  onTap: () => selectRole("coach"),
-                ),
-                const SizedBox(height: 20), // Space between cards
+                  // Coach Card
+                  SlideTransition(
+                    position: _coachCardOffset,
+                    child: RoleCard(
+                      title: "Coach",
+                      imagePath: "${AppConstant.assetImages}coach.png",
+                      isSelected: selectedRole == "coach",
+                      onTap: () => selectRole("coach"),
+                    ),
+                  ),
+                  const SizedBox(height: 20), // Space between cards
 
-                // Admin Card
-                RoleCard(
-                  title: "Admin",
-                  imagePath: "${AppConstant.assetImages}admin.png", // Replace with your image path
-                  isSelected: selectedRole == "admin",
-                  onTap: () => selectRole("admin"),
-                ),
-              ],
+                  // Admin Card
+                  SlideTransition(
+                    position: _adminCardOffset,
+                    child: RoleCard(
+                      title: "Admin",
+                      imagePath: "${AppConstant.assetImages}admin.png",
+                      isSelected: selectedRole == "admin",
+                      onTap: () => selectRole("admin"),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
