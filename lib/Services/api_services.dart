@@ -5,7 +5,10 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:soccer_mobile_app/Utils/Helpers/helper_functions.dart';
+import 'package:soccer_mobile_app/config/routes/app_navigation.dart';
+import 'package:soccer_mobile_app/config/routes/app_routes.dart';
 import 'package:soccer_mobile_app/core/constants/app_constant.dart';
+import 'package:soccer_mobile_app/main.dart';
 
 class ApiService {
   /// ENDPOINT
@@ -27,7 +30,8 @@ class ApiService {
         return result;
       } else if (response.statusCode == 403) {
         HelperFunctions.showErrorToast('${result['message']}');
-
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
         // blocSingleton.logout(context: context);
       } else {
         return result;
@@ -80,7 +84,63 @@ class ApiService {
         return json.decode(responseData);
       } else if (response.statusCode == 403) {
         var errorData = await response.stream.bytesToString();
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
+        HelperFunctions.showErrorToast('${json.decode(errorData)}');
+        // blocSingleton.logout(context: context);
+        return null;
+      } else {
+        var errorData = await response.stream.bytesToString();
+        return json.decode(errorData);
+      }
+    } on TimeoutException {
+      // Handle timeout using the onTimeout callback
+      HelperFunctions.showErrorToast('Server timeout, check your internet connection.');
+      return null; // Default fallback if no onTimeout is provided
+    } catch (e) {
+      log('error state $e');
+      return e.toString();
+    }
+  }
 
+  ///~~~~~~~~~~~~~~~~~~~~~PUT FORM DATA~~~~~~~~~~~~~~~~~~~~///
+  Future putFormData({required Map<String, String> header, required Map<String, String> fields, required Map<String, File>? files}) async {
+    try {
+      print('HITTING PUT API AT ==> ${AppConstant.appBaseURL + endPoint} WITH BODY \n  $fields ... $files  ');
+
+      // Create a multipart request
+      var request = http.MultipartRequest('PUT', Uri.parse(AppConstant.appBaseURL + endPoint));
+
+      // Add text fields to the request
+      request.fields.addAll(fields);
+      request.headers.addAll(header);
+
+      if (files != null) {
+        // Add files to the request
+        for (var entry in files.entries) {
+          var fileStream = http.ByteStream(entry.value.openRead());
+          var fileLength = await entry.value.length();
+          var multipartFile = http.MultipartFile(
+            entry.key, // Field name for the file
+            fileStream,
+            fileLength,
+            filename: entry.value.path.split('/').last, // Extract file name from path
+          );
+          request.files.add(multipartFile);
+        }
+      }
+      // Send the request
+      var response = await request.send().timeout(const Duration(seconds: 15));
+      print('PUT FORM DATA response:${response.statusCode}  ');
+
+      // Handle the response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = await response.stream.bytesToString();
+        return json.decode(responseData);
+      } else if (response.statusCode == 403) {
+        var errorData = await response.stream.bytesToString();
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
         HelperFunctions.showErrorToast('${json.decode(errorData)}');
         // blocSingleton.logout(context: context);
         return null;
@@ -116,6 +176,8 @@ class ApiService {
       } else if (response.statusCode == 403) {
         HelperFunctions.showErrorToast('${result['message']}');
         // blocSingleton.logout(context: context);
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
         return null;
       } else {
         HelperFunctions.showErrorToast('${result['message']}');
@@ -147,7 +209,8 @@ class ApiService {
         return result;
       } else if (response.statusCode == 403) {
         HelperFunctions.showErrorToast('${result['message']}');
-
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
         // blocSingleton.logout(context: context);
       } else {
         return result;
@@ -179,6 +242,8 @@ class ApiService {
       } else if (response.statusCode == 403) {
         HelperFunctions.showErrorToast('${result['message']}');
         // blocSingleton.logout(context: context);
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
       } else {
         return result;
       }

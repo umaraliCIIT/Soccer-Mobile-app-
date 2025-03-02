@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:soccer_mobile_app/features/auth/create_new_password/create_new_password.dart';
 import 'package:soccer_mobile_app/features/auth/login/login_screen.dart';
 import 'package:soccer_mobile_app/features/auth/reset_password/reset_password.dart';
 import 'package:soccer_mobile_app/features/auth/sign_up/sign_up.dart';
+import 'package:soccer_mobile_app/features/dashboard/account/edit_profile_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/dashboard_screen.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/overview_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/player_data_widget.dart';
@@ -21,6 +21,7 @@ class AppRoutes {
   static const String routeDashboardScreen = "/dashboard";
   static const String routeCreateNewPasswordScreen = "/newPassword";
   static const String routeMedalDetailScreen = "/medalDetail";
+  static const String routeEditProfileScreen = "/editProfile";
   static const String routeOverviewScreen = "/homeOverview";
   static const String routePlayerDataScreen = "/homePlayerData";
   static const String routeHomeDetailsScreen = "/homeDetails";
@@ -35,8 +36,7 @@ class AppRoutes {
       AppRoutes.routeTypeSelectionScreen: (context) => const TypeSelection(),
       AppRoutes.routeDashboardScreen: (context) => const DashboardScreen(),
       AppRoutes.routeResetPasswordScreen: (context) => const ResetPasswordScreen(),
-      // AppRoutes.routeOtpVerifyScreen: (context) => OtpVerifyScreen(),
-      AppRoutes.routeCreateNewPasswordScreen: (context) => const CreateNewPasswordScreen(),
+      AppRoutes.routeEditProfileScreen: (context) => const ProfileScreen(),
       AppRoutes.routeMedalDetailScreen: (context) => const MedalDetailWidget(),
       AppRoutes.routeOverviewScreen: (context) => const OverviewWidget(),
       AppRoutes.routePlayerDataScreen: (context) => const PlayerDataWidget(),

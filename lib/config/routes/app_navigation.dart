@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'app_routes.dart';
-
 class AppNavigation {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -26,7 +24,7 @@ class AppNavigation {
   }
 
   static Future<dynamic> pushAndKillAll(String routeName) {
-    return navigatorKey.currentState!.pushNamedAndRemoveUntil(routeName, ModalRoute.withName(AppRoutes.initial));
+    return navigatorKey.currentState!.pushNamedAndRemoveUntil(routeName, (Route<dynamic> route) => false);
   }
 
   static Future<dynamic> pushReplacementTo(String routeName, {Object? arguments}) {

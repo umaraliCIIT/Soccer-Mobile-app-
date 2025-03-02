@@ -1,3 +1,4 @@
+import 'package:soccer_mobile_app/Models/data/auth/login_dm.dart';
 import 'package:soccer_mobile_app/Services/api_services.dart';
 import 'package:soccer_mobile_app/Services/end_points.dart';
 import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
@@ -52,10 +53,17 @@ class AuthRepository {
     return ApiService(endPoint: '/$result/${EndPoints.changePassword}').post(header: _header!, postBody: _postBody);
   }
 
-  createPassword({required Map<String, String> body}) {
+  createPassword({required Map<String, String> body, bool isProfile = false}) {
     var result = box.read(Storage.userRole);
+
+    if (isProfile) {
+      var userLogin = box.read(Storage.userData);
+      LoginResponse data = LoginResponse.fromJson(userLogin);
+      _header = {"Content-Type": "application/json", "Accept": "application/json", 'Authorization': 'Bearer ${data.token}'};
+    } else {
+      _header = {"Content-Type": "application/json", "Accept": "application/json"};
+    }
     _postBody = body;
-    _header = {"Content-Type": "application/json", "Accept": "application/json"};
     return ApiService(endPoint: '/$result/${EndPoints.createPassword}').post(header: _header!, postBody: _postBody);
   }
 
@@ -64,5 +72,16 @@ class AuthRepository {
     _postBody = body;
     _header = {"Content-Type": "application/json", "Accept": "application/json"};
     return ApiService(endPoint: '/$result/${EndPoints.resendOtp}').post(header: _header!, postBody: _postBody);
+  }
+
+  updateProfile({required fields, required files}) async {
+    var result = box.read(Storage.userRole);
+    var userLogin = box.read(Storage.userData);
+    LoginResponse data = LoginResponse.fromJson(userLogin);
+    print('data token --> ${data.token}');
+    _header = {"Content-Type": "application/json", "Accept": "application/json", 'Authorization': 'Bearer ${data.token}'};
+
+    var response = await ApiService(endPoint: '/$result/${EndPoints.updateProfile}').putFormData(header: _header!, fields: fields, files: files);
+    return response;
   }
 }

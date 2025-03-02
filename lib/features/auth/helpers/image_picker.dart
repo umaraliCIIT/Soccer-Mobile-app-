@@ -6,15 +6,12 @@ import 'package:soccer_mobile_app/Provider/auth_provider.dart';
 import 'package:soccer_mobile_app/config/theme/app_colors.dart';
 
 class WidgetImagePicker extends StatelessWidget {
-  WidgetImagePicker({Key? key, this.isShow = true}) : super(key: key);
-
-  bool isShow;
+  final bool isShow;
+  const WidgetImagePicker({super.key, this.isShow = true});
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
     return Consumer<AuthProvider>(builder: (c, provider, x) {
-      print('----> ${provider.imagePath}');
       return Align(
         alignment: Alignment.center,
         child: Stack(
@@ -27,18 +24,32 @@ class WidgetImagePicker extends StatelessWidget {
               ),
               height: 120,
               width: 120,
-              child: (provider.imagePath != null && provider.imagePath != '')
-                  ? ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(100)), child: Image.file(File(provider.imagePath!)))
-                  : ClipRRect(
+              child: (provider.imagePath != null && provider.imagePath != '' && !provider.imagePath!.contains('https'))
+                  ? ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(100)),
-                      child: Container(
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(color: AppColors.neutralColor400, shape: BoxShape.circle),
+                      child: Image.file(
+                        File(
+                          provider.imagePath!,
+                        ),
+                        fit: BoxFit.fill,
+                      ))
+                  : provider.imagePath!.contains('https')
+                      ? ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(100)),
                           child: Image.network(
-                            "https://media.istockphoto.com/id/1214428300/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=vftMdLhldDx9houN4V-g3C9k0xl6YeBcoB_Rk6Trce0=",
+                            provider.imagePath!,
                             fit: BoxFit.fill,
-                          )),
-                    ),
+                          ))
+                      : ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(100)),
+                          child: Container(
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(color: AppColors.neutralColor400, shape: BoxShape.circle),
+                              child: Image.network(
+                                "https://media.istockphoto.com/id/1214428300/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=vftMdLhldDx9houN4V-g3C9k0xl6YeBcoB_Rk6Trce0=",
+                                fit: BoxFit.fill,
+                              )),
+                        ),
             ),
             if (isShow)
               Positioned(

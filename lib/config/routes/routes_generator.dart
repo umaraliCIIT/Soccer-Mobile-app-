@@ -5,6 +5,7 @@ import 'package:soccer_mobile_app/features/auth/login/login_screen.dart';
 import 'package:soccer_mobile_app/features/auth/otp_verification/otp_verification.dart';
 import 'package:soccer_mobile_app/features/auth/reset_password/reset_password.dart';
 import 'package:soccer_mobile_app/features/auth/sign_up/sign_up.dart';
+import 'package:soccer_mobile_app/features/dashboard/account/edit_profile_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/dashboard_screen.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/overview_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/player_data_widget.dart';
@@ -37,9 +38,14 @@ class RouteGenerator {
           arguments: settings.arguments,
         ));
       case AppRoutes.routeCreateNewPasswordScreen:
-        return _screenRoute(screen: const CreateNewPasswordScreen());
+        return _screenRoute(
+            screen: CreateNewPasswordScreen(
+          isProfile: settings.arguments as bool,
+        ));
       case AppRoutes.routeMedalDetailScreen:
         return _screenRoute(screen: const MedalDetailWidget());
+      case AppRoutes.routeEditProfileScreen:
+        return _screenRoute(screen: ProfileScreen());
       case AppRoutes.routeOverviewScreen:
         return _screenRoute(screen: const OverviewWidget());
       case AppRoutes.routePlayerDataScreen:

@@ -14,4 +14,10 @@ class EndPoints {
   static String createPassword = 'change-password';
 
   static String resendOtp = 'resend-otp';
+
+  static String sessions = 'sessions';
+
+  static String mySession = 'my-sessions';
+
+  static String updateProfile = 'update';
 }

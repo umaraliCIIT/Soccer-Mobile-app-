@@ -45,7 +45,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       if (status == AnimationStatus.completed) {
         Future.delayed(const Duration(seconds: 1), () {
           var response = box.read(Storage.userData);
-          print('response login-----> $response');
           if (response != null) {
             LoginResponse data = LoginResponse.fromJson(response);
             if (data.data!.isVerified!) {

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:soccer_mobile_app/Models/data/auth/login_dm.dart';
 import 'package:soccer_mobile_app/Models/data/auth/register_dm.dart';
 import 'package:soccer_mobile_app/Models/repository/auth_repository.dart';
@@ -23,7 +24,8 @@ class AuthProvider extends ChangeNotifier {
   TextEditingController phoneController = TextEditingController();
   TextEditingController otpController = TextEditingController();
   TextEditingController newPassController = TextEditingController();
-
+  String phoneNum = '';
+  String phoneIso = '';
   bool _isObscureText = true;
   bool _isConfirmObscureText = true;
   bool _isCamera = false;
@@ -74,6 +76,8 @@ class AuthProvider extends ChangeNotifier {
       'email': emailController.text,
       'password': passController.text,
     };
+    box.write(Storage.email, emailController.text);
+
     var res = await AuthRepository().login(body: map);
     CustomLoading.hideLoadingIndicator();
 
@@ -268,28 +272,107 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future createPassword() async {
+  Future createPassword(bool isProfile) async {
     if (passController.text.isEmpty || newPassController.text.isEmpty) {
       HelperFunctions.showErrorToast('Please fill the required fields!');
       return;
     }
     CustomLoading.showLoadingIndicator();
-    try {
-      Map<String, String> map = {
-        "email": box.read(Storage.email),
-        "password": passController.text,
-        "confirmPassword": newPassController.text,
-      };
-      var res = await AuthRepository().createPassword(body: map);
-      CustomLoading.hideLoadingIndicator();
-      if (res['success'] != null && res['success'] == true) {
-        passController.clear();
-        newPassController.clear();
-        HelperFunctions.showSuccessToast('${res['message']}');
-        AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
+    Map<String, String> map = {
+      "email": box.read(Storage.email),
+      "password": passController.text,
+      "confirmPassword": newPassController.text,
+    };
+    var res = await AuthRepository().createPassword(body: map, isProfile: isProfile);
+    CustomLoading.hideLoadingIndicator();
+    if (res['success'] != null && res['success'] == true) {
+      passController.clear();
+      newPassController.clear();
+      HelperFunctions.showSuccessToast('${res['message']}');
+      if (isProfile) {
+        AppNavigation.goBack();
       } else {
-        HelperFunctions.showErrorToast('${res['message']}');
+        AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
       }
+    } else {
+      HelperFunctions.showErrorToast('${res['message']}');
+    }
+    notifyListeners();
+  }
+
+  Future getProfile() async {
+    CustomLoading.showLoadingIndicator();
+
+    Future.delayed(const Duration(seconds: 3), () async {
+      var data = box.read(Storage.userData);
+      if (data != null) {
+        CustomLoading.hideLoadingIndicator();
+
+        LoginResponse response = LoginResponse.fromJson(data);
+
+        fNameController.text = response.data?.firstName ?? '';
+        lNameController.text = response.data?.lastName ?? '';
+        emailController.text = response.data?.email ?? '';
+        phoneNum = response.data?.phone.toString() ?? '';
+        phoneController.text = response.data?.phone.toString() ?? '';
+        setImagePath(response.data?.profilePicture ?? '');
+        var value = await PhoneNumber.getRegionInfoFromPhoneNumber(phoneNum);
+        phoneIso = value.isoCode ?? 'US';
+      }
+      notifyListeners();
+    });
+  }
+
+  Future updateProfile() async {
+    if (fNameController.text.isEmpty || lNameController.text.isEmpty || phoneController.text.isEmpty) {
+      HelperFunctions.showErrorToast('Please fill the required fields!');
+      return;
+    }
+    CustomLoading.showLoadingIndicator();
+    Map<String, String> map = {
+      'firstName': fNameController.text,
+      'lastName': lNameController.text,
+      'phone': phoneController.text,
+    };
+
+    Map<String, File>? files;
+    if (_imageFile != null) {
+      files = {
+        'file': _imageFile!, // Add the profile image file
+      };
+    }
+    var res = await AuthRepository().updateProfile(fields: map, files: files);
+    CustomLoading.hideLoadingIndicator();
+    if (res['success'] != null && res['success'] == true) {
+      fNameController.clear();
+      lNameController.clear();
+      phoneController.clear();
+      var data = box.read(Storage.userData);
+      LoginResponse response = LoginResponse.fromJson(data);
+
+      response.data?.firstName = res['data']['firstName'];
+      response.data?.lastName = res['data']['lastName'];
+      response.data?.profilePicture = res['data']['profilePicture'];
+      response.data?.phone = res['data']['phone'];
+
+      box.write(Storage.userData, response.toJson());
+
+      HelperFunctions.showSuccessToast('${res['message']}');
+    } else {
+      HelperFunctions.showErrorToast('${res['message']}');
+    }
+    notifyListeners();
+  }
+
+  void logout() {
+    CustomLoading.showLoadingIndicator();
+    try {
+      Future.delayed(const Duration(seconds: 3), () {
+        CustomLoading.hideLoadingIndicator();
+        HelperFunctions.showSuccessToast('Logout Successfully!');
+        box.erase();
+        AppNavigation.pushAndKillAll(AppRoutes.routeTypeSelectionScreen);
+      });
       notifyListeners();
     } catch (e) {
       HelperFunctions.showErrorToast(e.toString());

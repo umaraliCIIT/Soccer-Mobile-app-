@@ -8,7 +8,8 @@ import 'package:soccer_mobile_app/core/components/extensions.dart';
 import 'package:soccer_mobile_app/features/auth/helpers/common_widget.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
-  const CreateNewPasswordScreen({super.key});
+  final bool isProfile;
+  const CreateNewPasswordScreen({super.key, this.isProfile = false});
 
   @override
   State<CreateNewPasswordScreen> createState() => _CreateNewPasswordScreenState();
@@ -145,7 +146,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 CustomElevatedButton(
                   title: 'Save Password',
                   onPressed: () {
-                    createPassProvider.createPassword();
+                    createPassProvider.createPassword(widget.isProfile);
                   },
                 ),
               ],
