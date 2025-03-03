@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soccer_mobile_app/config/routes/app_routes.dart';
 
 class AppNavigation {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -24,7 +25,7 @@ class AppNavigation {
   }
 
   static Future<dynamic> pushAndKillAll(String routeName) {
-    return navigatorKey.currentState!.pushNamedAndRemoveUntil(routeName, (Route<dynamic> route) => false);
+    return navigatorKey.currentState!.pushNamedAndRemoveUntil(routeName, ModalRoute.withName(AppRoutes.routeTypeSelectionScreen));
   }
 
   static Future<dynamic> pushReplacementTo(String routeName, {Object? arguments}) {
