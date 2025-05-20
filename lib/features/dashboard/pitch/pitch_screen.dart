@@ -46,13 +46,12 @@ class _PitchScreenState extends State<PitchScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(left: 16.0, top: 24.0, right: 16),
                         child: Container(
-                          width: 343,
-                          height: 355,
                           decoration: BoxDecoration(
                             color: AppColors.secondaryColor450, // Same as android:fillColor
                             borderRadius: BorderRadius.circular(24), // Approximating corner rounding
                           ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
                                 clipBehavior: Clip.antiAlias,
@@ -103,6 +102,7 @@ class _PitchScreenState extends State<PitchScreen> {
                                   homeProvider.mySessionData?.data?[index].description ?? "",
                                   maxLines: 2,
                                   softWrap: true,
+                                  textAlign: TextAlign.start,
                                   overflow: TextOverflow.ellipsis,
                                   style: textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.normal,
@@ -135,7 +135,9 @@ class _PitchScreenState extends State<PitchScreen> {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        homeProvider.mySessionData?.data?[index].durationStart ?? "",
+                                        homeProvider.sessionData!.data![index].durationStart != null
+                                            ? DateTime.parse(homeProvider.sessionData!.data![index].durationStart!).toString().split(' ')[0]
+                                            : "",
                                         textAlign: TextAlign.end,
                                         style: textTheme.titleSmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 12),
                                       ),
@@ -144,29 +146,49 @@ class _PitchScreenState extends State<PitchScreen> {
                                 ),
                               ),
                               18.height,
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const CircleAvatar(
-                                      radius: 12,
-                                      // backgroundImage: NetworkImage("${homeProvider.mySessionData.data[index].sessionHost.image}"),
-                                      backgroundImage: AssetImage('${AppConstant.assetImages}footballer.png'),
-                                    ),
-                                    10.width,
-                                    Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        "${homeProvider.mySessionData?.data?[index].sessionHost?.firstName ?? ""} ${homeProvider.mySessionData?.data?[index].sessionHost?.lastName ?? ""}",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: textTheme.bodySmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 13),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const CircleAvatar(
+                                            radius: 12,
+                                            // backgroundImage: NetworkImage("${homeProvider.mySessionData.data[index].sessionHost.image}"),
+                                            backgroundImage: AssetImage('${AppConstant.assetImages}footballer.png'),
+                                          ),
+                                          10.width,
+                                          Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              "${homeProvider.mySessionData?.data?[index].sessionHost?.firstName ?? ""} ${homeProvider.mySessionData?.data?[index].sessionHost?.lastName ?? ""}",
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: textTheme.bodySmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 13),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    margin: const EdgeInsets.only(right: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor300,
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    child: Text(
+                                      "Enrolled",
+                                      textAlign: TextAlign.end,
+                                      style: textTheme.titleSmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              18.height,
                             ],
                           ),
                         ),

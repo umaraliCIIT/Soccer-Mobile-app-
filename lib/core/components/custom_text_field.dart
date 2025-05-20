@@ -98,7 +98,7 @@ class WidgetTextField extends StatelessWidget {
         onEditingComplete: onEditingComplete,
         decoration: InputDecoration(
           filled: true,
-          fillColor: AppColors.blackColor500,
+          fillColor: AppColors.fillColor,
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           counterStyle: const TextStyle(
             color: AppColors.neutralColor500,
@@ -117,7 +117,23 @@ class WidgetTextField extends StatelessWidget {
             borderRadius: borderRadius ?? BorderRadius.circular(50),
             borderSide: const BorderSide(
               color: AppColors.neutralColor400,
-              width: 0.5,
+              width: 1,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            // Add focused border for better visibility
+            borderRadius: borderRadius ?? BorderRadius.circular(50),
+            borderSide: const BorderSide(
+              color: AppColors.neutralColor400,
+              width: 1,
+            ),
+          ),
+          disabledBorder: OutlineInputBorder(
+            // Add focused border for better visibility
+            borderRadius: borderRadius ?? BorderRadius.circular(50),
+            borderSide: const BorderSide(
+              color: AppColors.neutralColor400,
+              width: 1,
             ),
           ),
           prefixIcon: prefix,
@@ -131,6 +147,7 @@ class WidgetTextField extends StatelessWidget {
           labelStyle: const TextStyle(
             color: AppColors.secondaryColor500,
             fontFamily: 'Metropolis',
+            fontSize: 14,
           ),
         ),
       ),

@@ -38,6 +38,7 @@ class AppColors {
   static const Color blackColor = Color(0xFF14142B);
   static const Color black = Color(0x00000099);
   static const Color blackColor500 = Color(0xFF161221);
+  static const Color fillColor = Color(0xFF201d28);
 
   static Color fromHex(String hexString) {
     final buffer = StringBuffer();

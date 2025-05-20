@@ -40,6 +40,7 @@ class AuthProvider extends ChangeNotifier {
   get isConfirmObscure => _isConfirmObscureText;
 
   get imagePath => _imagePath;
+  get imageFile => _imageFile;
 
   setObscure() {
     _isObscureText = !_isObscureText;
@@ -66,17 +67,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future login() async {
-    if (emailController.text.isEmpty || passController.text.isEmpty) {
-      HelperFunctions.showErrorToast('Please fill the required fields!');
-      return;
-    }
+  Future login(map) async {
     CustomLoading.showLoadingIndicator();
-    Map<String, dynamic> map = {
-      'email': emailController.text,
-      'password': passController.text,
-    };
-    box.write(Storage.email, emailController.text);
+
+    box.write(Storage.email, map['email']);
 
     var res = await AuthRepository().login(body: map);
     CustomLoading.hideLoadingIndicator();

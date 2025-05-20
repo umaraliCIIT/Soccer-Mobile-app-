@@ -9,6 +9,7 @@ import 'package:soccer_mobile_app/features/dashboard/account/edit_profile_widget
 import 'package:soccer_mobile_app/features/dashboard/dashboard_screen.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/overview_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/player_data_widget.dart';
+import 'package:soccer_mobile_app/features/dashboard/home/widget/student_requests.dart';
 import 'package:soccer_mobile_app/features/dashboard/medal/widget/medal_detail_widget.dart';
 import 'package:soccer_mobile_app/features/splash_screen.dart';
 import 'package:soccer_mobile_app/features/type_selection.dart';
@@ -16,7 +17,6 @@ import 'package:soccer_mobile_app/features/walk_through.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    print('argsing-----> ${settings.arguments}');
     switch (settings.name) {
       case AppRoutes.initial:
         return _screenRoute(screen: SplashScreen());
@@ -45,11 +45,19 @@ class RouteGenerator {
       case AppRoutes.routeMedalDetailScreen:
         return _screenRoute(screen: const MedalDetailWidget());
       case AppRoutes.routeEditProfileScreen:
-        return _screenRoute(screen: ProfileScreen());
-      case AppRoutes.routeOverviewScreen:
-        return _screenRoute(screen: const OverviewWidget());
+        return _screenRoute(screen: const ProfileScreen());
+      case AppRoutes.routeHomeDetailsScreen:
+        return _screenRoute(
+            screen: OverviewWidget(
+          arguments: settings.arguments as Map<String, dynamic>,
+        ));
       case AppRoutes.routePlayerDataScreen:
         return _screenRoute(screen: const PlayerDataWidget());
+      case AppRoutes.routeStudentRequestScreen:
+        return _screenRoute(
+            screen: StudentRequests(
+          arguments: settings.arguments,
+        ));
 
       default:
         return _screenRoute(

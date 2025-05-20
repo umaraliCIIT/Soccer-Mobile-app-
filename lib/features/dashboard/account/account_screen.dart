@@ -73,11 +73,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     size: 18,
                   ),
                   onTap: () {
-                    AppNavigation.navigateTo(AppRoutes.routeEditProfileScreen).then(
-                      (value) {
-                        authProvider.getProfile();
-                      },
-                    );
+                    AppNavigation.navigateTo(AppRoutes.routeEditProfileScreen).then((value) {
+                      authProvider.getProfile();
+                    });
                   },
                 ),
               ),

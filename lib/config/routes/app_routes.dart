@@ -4,9 +4,9 @@ import 'package:soccer_mobile_app/features/auth/reset_password/reset_password.da
 import 'package:soccer_mobile_app/features/auth/sign_up/sign_up.dart';
 import 'package:soccer_mobile_app/features/dashboard/account/edit_profile_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/dashboard_screen.dart';
-import 'package:soccer_mobile_app/features/dashboard/home/widget/overview_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/home/widget/player_data_widget.dart';
 import 'package:soccer_mobile_app/features/dashboard/medal/widget/medal_detail_widget.dart';
+import 'package:soccer_mobile_app/features/dashboard/pitch/session_screen.dart';
 import 'package:soccer_mobile_app/features/splash_screen.dart';
 import 'package:soccer_mobile_app/features/type_selection.dart';
 import 'package:soccer_mobile_app/features/walk_through.dart';
@@ -26,6 +26,8 @@ class AppRoutes {
   static const String routePlayerDataScreen = "/homePlayerData";
   static const String routeHomeDetailsScreen = "/homeDetails";
   static const String routeSignUpScreen = "/signUp";
+  static const String routeStudentRequestScreen = "/studentRequest";
+  static const String routeAddSessionScreen = "/addSession";
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
@@ -38,9 +40,10 @@ class AppRoutes {
       AppRoutes.routeResetPasswordScreen: (context) => const ResetPasswordScreen(),
       AppRoutes.routeEditProfileScreen: (context) => const ProfileScreen(),
       AppRoutes.routeMedalDetailScreen: (context) => const MedalDetailWidget(),
-      AppRoutes.routeOverviewScreen: (context) => const OverviewWidget(),
+      // AppRoutes.routeOverviewScreen: (context) => const OverviewWidget(),
       AppRoutes.routePlayerDataScreen: (context) => const PlayerDataWidget(),
-      AppRoutes.routeHomeDetailsScreen: (context) => const OverviewWidget(),
+      // AppRoutes.routeHomeDetailsScreen: (context) => const OverviewWidget(),
+      AppRoutes.routeAddSessionScreen: (context) => const SessionScreen(),
     };
   }
 }

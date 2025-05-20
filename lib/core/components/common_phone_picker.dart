@@ -134,7 +134,7 @@ class _CommonPhonePickerState extends State<CommonPhonePicker> {
       inputDecoration: widget.enable ?? true
           ? InputDecoration(
               contentPadding: const EdgeInsets.only(right: 0, left: 8, top: 12),
-              fillColor: AppColors.blackColor500,
+              fillColor: AppColors.fillColor,
               filled: true,
               counterStyle: const TextStyle(
                 color: AppColors.neutralColor500,

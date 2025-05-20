@@ -6,8 +6,8 @@ class SvgAsset extends StatelessWidget {
   final double? width, height;
   final Function()? onTap;
   final BorderRadius? radius;
-  final Color? splashColor;
-  const SvgAsset({super.key, required this.svgName, this.width = 50, this.height = 50, this.onTap, this.radius, this.splashColor});
+  final Color? splashColor, color;
+  const SvgAsset({super.key, required this.svgName, this.width = 50, this.height = 50, this.onTap, this.radius, this.splashColor, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +18,7 @@ class SvgAsset extends StatelessWidget {
           svgName, // Replace with your SVG path
           width: width, // Set width of the SVG
           height: height,
+          color: color,
           fit: BoxFit.scaleDown, // Set height of the SVG
         ),
         Material(

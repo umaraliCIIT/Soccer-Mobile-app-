@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:soccer_mobile_app/Provider/home_provider.dart';
+import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
 import 'package:soccer_mobile_app/config/routes/app_navigation.dart';
 import 'package:soccer_mobile_app/config/routes/app_routes.dart';
 import 'package:soccer_mobile_app/config/theme/app_colors.dart';
 import 'package:soccer_mobile_app/core/components/app_bar.dart';
 import 'package:soccer_mobile_app/core/components/extensions.dart';
 import 'package:soccer_mobile_app/core/constants/app_constant.dart';
+import 'package:soccer_mobile_app/main.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,60 +43,62 @@ class _HomeScreenState extends State<HomeScreen> {
         onRightPressed: () {},
       ),
       body: Consumer<HomeProvider>(builder: (x, homeProvider, y) {
+        var result = box.read(Storage.userRole);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
-              width: double.maxFinite,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryColor350, // Light grey background
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(labels.length, (index) {
-                    final bool isSelected = _selectedIndex == index;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                        if (_selectedIndex == 0) {
-                          homeProvider.getSessions(params: "all");
-                        } else if (_selectedIndex == 1) {
-                          homeProvider.getSessions(params: "basic");
-                        } else {
-                          homeProvider.getSessions(params: "pro");
-                        }
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.secondaryColor500 : Colors.transparent,
-                          borderRadius: BorderRadius.circular(24),
-                          border: isSelected ? Border.all(color: AppColors.secondaryColor500, width: 2) : Border.all(color: Colors.transparent),
-                        ),
-                        child: Text(
-                          labels[index],
-                          style: textTheme.bodySmall?.copyWith(
-                            color: isSelected ? AppColors.actionColor550 : AppColors.secondaryColor500,
+            if (result != 'admin')
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12),
+                width: double.maxFinite,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryColor350, // Light grey background
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(labels.length, (index) {
+                      final bool isSelected = _selectedIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                          if (_selectedIndex == 0) {
+                            homeProvider.getSessions(params: "all");
+                          } else if (_selectedIndex == 1) {
+                            homeProvider.getSessions(params: "basic");
+                          } else {
+                            homeProvider.getSessions(params: "pro");
+                          }
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.secondaryColor500 : Colors.transparent,
+                            borderRadius: BorderRadius.circular(24),
+                            border: isSelected ? Border.all(color: AppColors.secondaryColor500, width: 2) : Border.all(color: Colors.transparent),
+                          ),
+                          child: Text(
+                            labels[index],
+                            style: textTheme.bodySmall?.copyWith(
+                              color: isSelected ? AppColors.actionColor550 : AppColors.secondaryColor500,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ),
                 ),
               ),
-            ),
             16.height,
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Upcoming Sessions',
+                result == 'admin' ? 'My Sessions' : 'Upcoming Sessions',
                 style: textTheme.headlineSmall?.copyWith(color: AppColors.secondaryColor150),
               ),
             ),
@@ -106,13 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         return InkWell(
                           onTap: () {
-                            AppNavigation.navigateTo(AppRoutes.routeHomeDetailsScreen, arguments: {'index': index});
+                            if (result == 'admin') {
+                              AppNavigation.navigateTo(AppRoutes.routeStudentRequestScreen, arguments: {'sId': homeProvider.sessionData?.data?[index].sId});
+                            } else {
+                              AppNavigation.navigateTo(AppRoutes.routeHomeDetailsScreen, arguments: {'index': homeProvider.sessionData?.data?[index].toJson()});
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(left: 16.0, top: 24.0, right: 16),
                             child: Container(
-                              width: 343,
-                              height: 355,
                               decoration: BoxDecoration(
                                 color: AppColors.secondaryColor450, // Same as android:fillColor
                                 borderRadius: BorderRadius.circular(24), // Approximating corner rounding
@@ -201,8 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         Expanded(
                                           child: Text(
-                                            homeProvider.sessionData?.data?[index].durationStart ?? "",
+                                            homeProvider.sessionData!.data![index].durationStart != null
+                                                ? DateTime.parse(homeProvider.sessionData!.data![index].durationStart!).toString().split(' ')[0]
+                                                : "",
                                             textAlign: TextAlign.end,
+                                            maxLines: 4,
                                             style: textTheme.titleSmall?.copyWith(color: AppColors.secondaryColor25, fontSize: 12),
                                           ),
                                         ),
@@ -233,6 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
+                                  18.height,
                                 ],
                               ),
                             ),

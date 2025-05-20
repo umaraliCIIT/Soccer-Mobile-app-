@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           var response = box.read(Storage.userData);
           if (response != null) {
             LoginResponse data = LoginResponse.fromJson(response);
-            if (data.data!.isVerified!) {
+            if (data.data!.isVerified ?? false) {
               AppNavigation.pushAndKillAll(AppRoutes.routeDashboardScreen);
             } else {
               AppNavigation.pushAndKillAll(AppRoutes.routeLoginScreen);

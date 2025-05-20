@@ -1,15 +1,15 @@
 class SessionModel {
   bool? success;
-  List<Data>? data;
+  List<SessionData>? data;
 
   SessionModel({this.success, this.data});
 
   SessionModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <SessionData>[];
       json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
+        data!.add(SessionData.fromJson(v));
       });
     }
   }
@@ -24,7 +24,7 @@ class SessionModel {
   }
 }
 
-class Data {
+class SessionData {
   String? sId;
   String? title;
   String? description;
@@ -41,7 +41,7 @@ class Data {
   String? createdAt;
   int? iV;
 
-  Data(
+  SessionData(
       {this.sId,
       this.title,
       this.description,
@@ -58,7 +58,7 @@ class Data {
       this.createdAt,
       this.iV});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  SessionData.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     title = json['title'];
     description = json['description'];

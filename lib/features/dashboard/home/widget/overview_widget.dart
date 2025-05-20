@@ -1,240 +1,261 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:soccer_mobile_app/Models/data/auth/login_dm.dart';
+import 'package:soccer_mobile_app/Provider/home_provider.dart';
+import 'package:soccer_mobile_app/Utils/Constants/storage_keys.dart';
+import 'package:soccer_mobile_app/config/routes/app_navigation.dart';
 import 'package:soccer_mobile_app/config/theme/app_colors.dart';
 import 'package:soccer_mobile_app/core/components/app_bar.dart';
 import 'package:soccer_mobile_app/core/components/custom_button.dart';
 import 'package:soccer_mobile_app/core/components/extensions.dart';
 import 'package:soccer_mobile_app/core/constants/app_constant.dart';
+import 'package:soccer_mobile_app/core/constants/widget_constant.dart';
+import 'package:soccer_mobile_app/main.dart';
 
-class OverviewWidget extends StatelessWidget {
-  const OverviewWidget({super.key});
+class OverviewWidget extends StatefulWidget {
+  final arguments;
+  const OverviewWidget({super.key, this.arguments});
 
+  @override
+  State<OverviewWidget> createState() => _OverviewWidgetState();
+}
+
+class _OverviewWidgetState extends State<OverviewWidget> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
         backgroundColor: AppColors.actionColor600,
         appBar: CommonAppBar(
           title: 'Overview',
           isProfile: true,
-          onLeftPressed: () {},
+          onLeftPressed: () {
+            AppNavigation.goBack();
+          },
           onRightPressed: () {},
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Image.asset(
-                      '${AppConstant.assetImages}overview.png',
-                      width: double.maxFinite,
-                    ),
-                    Positioned(
-                      top: MediaQuery.paddingOf(context).top,
-                      left: 8,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'RWDM ACADEMIE TEST',
-                              style: textTheme.headlineSmall?.copyWith(
-                                color: AppColors.actionColor600,
-                                fontWeight: FontWeight.w600,
+        body: Consumer<HomeProvider>(
+          builder: (context, ref, child) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30),
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Image.asset(
+                        '${AppConstant.assetImages}overview.png',
+                        width: double.maxFinite,
+                      ),
+                      Positioned(
+                        top: 30,
+                        left: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.arguments['index']['title'] ?? '',
+                                style: textTheme.headlineSmall?.copyWith(
+                                  color: AppColors.actionColor600,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            6.height,
-                            Text(
-                              'Saturday, 12 Dec 2024',
-                              style: textTheme.headlineMedium?.copyWith(
-                                color: AppColors.actionColor600,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
+                              6.height,
+                              Text(
+                                widget.arguments['index']['sessionType'] ?? '',
+                                style: textTheme.headlineMedium?.copyWith(
+                                  color: AppColors.actionColor600,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
-                            ),
-                            6.height,
-                            Text(
-                              '2:00 PM - 04:00 PM',
-                              style: textTheme.headlineSmall?.copyWith(
-                                color: AppColors.actionColor600,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                              6.height,
+                              Text(
+                                WidgetConstants.formatDateRange(widget.arguments['index']['durationStart'], widget.arguments['index']['durationEnd']),
+                                style: textTheme.headlineSmall?.copyWith(
+                                  color: AppColors.actionColor600,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                            (MediaQuery.sizeOf(context).height * 0.09).height,
-                            SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 0.8,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Player Name',
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
+                              (MediaQuery.sizeOf(context).height * 0.08).height,
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width * 0.8,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Session Host',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'David liz',
-                                      textAlign: TextAlign.end,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                    Expanded(
+                                      child: Text(
+                                        '${widget.arguments['index']['sessionHost']['firstName']} ${widget.arguments['index']['sessionHost']['lastName']}',
+                                        textAlign: TextAlign.end,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            6.height,
-                            SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 0.8,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Email',
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
+                              6.height,
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width * 0.8,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Email',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'David@gmail.com',
-                                      textAlign: TextAlign.end,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                    Expanded(
+                                      child: Text(
+                                        '${widget.arguments['index']['sessionHost']['email']}',
+                                        textAlign: TextAlign.end,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            6.height,
-                            SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 0.8,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Phone Number',
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
+                              6.height,
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width * 0.8,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Location',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      '+938 283 8827',
-                                      textAlign: TextAlign.end,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                    Expanded(
+                                      child: Text(
+                                        '${widget.arguments['index']['location'] ?? ''}',
+                                        textAlign: TextAlign.end,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            (MediaQuery.sizeOf(context).height * 0.08).height,
-                            SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 0.8,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Price',
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
+                              (MediaQuery.sizeOf(context).height * 0.06).height,
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width * 0.8,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Price',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      '\$85',
-                                      textAlign: TextAlign.end,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                    Expanded(
+                                      child: Text(
+                                        '\$${widget.arguments['index']['price']}',
+                                        textAlign: TextAlign.end,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            12.height,
-                            SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 0.8,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Total',
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
+                              12.height,
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width * 0.8,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Total',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      '\$85',
-                                      textAlign: TextAlign.end,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.actionColor600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                    Expanded(
+                                      child: Text(
+                                        '\$${widget.arguments['index']['price']}',
+                                        textAlign: TextAlign.end,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.actionColor600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const DottedLineRow(),
-              24.height,
-              const CustomLargeTextField(),
-              30.height,
-              CustomElevatedButton(
-                title: 'Continue',
-                minSize: Size(MediaQuery.sizeOf(context).width * 0.86, 45),
-                onPressed: () {},
-              ),
-            ],
-          ),
+                const DottedLineRow(),
+                const Spacer(),
+                CustomElevatedButton(
+                  title: 'Continue',
+                  minSize: Size(MediaQuery.sizeOf(context).width * 0.86, 45),
+                  onPressed: () {
+                    var userLogin = box.read(Storage.userData);
+                    LoginResponse data = LoginResponse.fromJson(userLogin);
+                    Map<String, dynamic> map = {};
+                    map['sessionId'] = widget.arguments['index']['_id'];
+                    map['userId'] = data.data?.sId;
+                    ref.enrollSession(map);
+                  },
+                ),
+                const Spacer(),
+              ],
+            );
+          },
         ));
   }
 }

@@ -51,8 +51,8 @@ class Data {
     phone = json['phone'];
     profilePicture = json['profilePicture'];
     isVerified = json['isVerified'];
-    sessionsEnrolled = json['sessionsEnrolled'].cast<String>();
-    sessionsPending = json['sessionsPending'].cast<String>();
+    sessionsEnrolled = (json['sessionsEnrolled'] ?? []).cast<String>();
+    sessionsPending = (json['sessionsPending'] ?? []).cast<String>();
     createdAt = json['createdAt'];
     iV = json['__v'];
   }
