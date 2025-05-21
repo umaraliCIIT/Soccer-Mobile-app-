@@ -120,20 +120,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future signup() async {
-    if (fNameController.text.isEmpty || lNameController.text.isEmpty || emailController.text.isEmpty || passController.text.isEmpty || phoneController.text.isEmpty) {
-      HelperFunctions.showErrorToast('Please fill the required fields!');
-      return;
-    }
+  Future signup(map) async {
+    // if (fNameController.text.isEmpty || lNameController.text.isEmpty || emailController.text.isEmpty || passController.text.isEmpty || phoneController.text.isEmpty) {
+    //   HelperFunctions.showErrorToast('Please fill the required fields!');
+    //   return;
+    // }
     CustomLoading.showLoadingIndicator();
-    Map<String, String> map = {
-      'firstName': fNameController.text,
-      'lastName': lNameController.text,
-      'email': emailController.text,
-      'password': passController.text,
-      'phone': phoneController.text,
-    };
-    box.write(Storage.email, emailController.text);
+    // Map<String, String> map = {
+    //   'firstName': fNameController.text,
+    //   'lastName': lNameController.text,
+    //   'email': emailController.text,
+    //   'password': passController.text,
+    //   'phone': phoneController.text,
+    // };
+    box.write(Storage.email, map['email']);
 
     Map<String, File>? files;
     if (_imageFile != null) {

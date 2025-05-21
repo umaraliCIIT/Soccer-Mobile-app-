@@ -43,7 +43,7 @@ class HomeProvider extends ChangeNotifier {
     if (res['success'] != null && res['success'] == true) {
       mySessionData = MySessionModel.fromJson(res);
     } else {
-      HelperFunctions.showErrorToast('${res['message']}');
+      // HelperFunctions.showErrorToast('${res['message']}');
     }
     notifyListeners();
   }
